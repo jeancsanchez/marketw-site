@@ -717,11 +717,26 @@ function FinalCTA() {
 }
 
 function Contact() {
-  const [sent, setSent] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSent(true);
+    const formData = new FormData(event.currentTarget);
+    const getValue = (field: string) => String(formData.get(field) ?? "").trim();
+    const message = [
+      "Olá, tenho interesse no piloto do MarketWatch.",
+      "",
+      `Nome: ${getValue("name") || "Não informado"}`,
+      `Empresa: ${getValue("company") || "Não informado"}`,
+      `E-mail: ${getValue("email") || "Não informado"}`,
+      `Cidade da operação: ${getValue("city") || "Não informado"}`,
+      `Unidades: ${getValue("stores") || "Não informado"}`,
+      "",
+      `Contexto da operação: ${getValue("message") || "Não informado"}`,
+    ].join("\n");
+
+    openExternalUrl(`https://wa.me/5585985649448?text=${encodeURIComponent(message)}`, true);
+    setSubmitMessage("Abrindo o WhatsApp para envio da mensagem.");
   }
 
   return (
@@ -768,15 +783,27 @@ function Contact() {
             Enviar interesse
             <ArrowRight className="h-5 w-5" />
           </button>
-          {sent && (
+          {submitMessage && (
             <p className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-900">
-              Interesse registrado para simulação. Em produção, este formulário pode ser conectado a CRM, WhatsApp ou e-mail.
+              {submitMessage}
             </p>
           )}
         </form>
       </div>
     </section>
   );
+}
+
+function openExternalUrl(url: string, newTab = false) {
+  const link = document.createElement("a");
+  link.href = url;
+  if (newTab) {
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+  }
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 function Footer() {
